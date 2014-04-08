@@ -1,4 +1,4 @@
-namespace WebApi.JsonWebToken.App_Start
+namespace WebApi.JsonWebToken
 {
     using System;
     using System.Collections;
