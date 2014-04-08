@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>WebApi.JsonWebToken</id>
+        <id>WebApi.JsonWebToken.Binaries</id>
         <version>0.1.1</version>
         <title>JsonWebToken DelegatingHandler for WebAPI</title>
         <authors>Matias Woloski, Sebastian Iacomuzzi</authors>
@@ -19,6 +19,10 @@
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="System.IdentityModel" targetFramework="" />
             <frameworkAssembly assemblyName="System.Web.Extensions" targetFramework="" />
+			<frameworkAssembly assemblyName="System.Web" targetFramework="" />
+			<frameworkAssembly assemblyName="System.Web.Http" targetFramework="" />
+			<frameworkAssembly assemblyName="System.Net" targetFramework="" />
+			<frameworkAssembly assemblyName="System.Net.Http" targetFramework="" />
         </frameworkAssemblies>
     </metadata>
 </package>
