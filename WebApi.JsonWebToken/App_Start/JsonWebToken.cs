@@ -19,6 +19,8 @@ namespace WebApi.JsonWebToken
         private static string[] claimTypesForUserName = new string[] { "name", "email", "user_id", "sub" };
         private static string[] claimsToExclude = new string[] { "iss", "sub", "aud", "exp", "iat", "identities" };
 
+        private static DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         private static JavaScriptSerializer jsonSerializer = new JavaScriptSerializer();
 
         public static ClaimsPrincipal ValidateToken(string token, string secretKey, string audience = null, bool checkExpiration = false, string issuer = null)
@@ -139,8 +141,7 @@ namespace WebApi.JsonWebToken
 
         private static DateTime FromUnixTime(long unixTime)
         {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return epoch.AddSeconds(unixTime);
+            return unixEpoch.AddSeconds(unixTime);
         }
 
         public class TokenValidationException : Exception
