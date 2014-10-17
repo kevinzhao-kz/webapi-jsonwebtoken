@@ -16,8 +16,8 @@ namespace WebApi.JsonWebToken
         private const string StringClaimValueType = "http://www.w3.org/2001/XMLSchema#string";
 
         // sort claim types by relevance
-        private static string[] claimTypesForUserName = new string[] { "name", "email", "user_id", "sub" };
-        private static string[] claimsToExclude = new string[] { "iss", "sub", "aud", "exp", "iat", "identities" };
+        private static ISet<string> claimTypesForUserName = new HashSet<string>(new[] { "name", "email", "user_id", "sub" });
+        private static ISet<string> claimsToExclude = new HashSet<string>(new[] { "iss", "sub", "aud", "exp", "iat", "identities" });
 
         private static DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -71,7 +71,7 @@ namespace WebApi.JsonWebToken
             return new ClaimsPrincipal(ClaimsIdentityFromJwt(payloadData, issuer));
         }
 
-        private static List<Claim> ClaimsFromJwt(IDictionary<string, object> jwtData, string issuer)
+        private static ICollection<Claim> ClaimsFromJwt(IDictionary<string, object> jwtData, string issuer)
         {
             var list = new List<Claim>();
             issuer = issuer ?? DefaultIssuer;
@@ -83,31 +83,26 @@ namespace WebApi.JsonWebToken
 
                 if (source != null)
                 {
-                    foreach (var item in source)
-                    {
-                        list.Add(new Claim(claimType, item.ToString(), StringClaimValueType, issuer, issuer));
-                    }
-
-                    continue;
+                    var claims = source.Cast<object>().Select(item => new Claim(pair.Key, item.ToString(), StringClaimValueType, issuer, issuer));
+                    list.AddRange(claims);
                 }
-
-                var claim = new Claim(claimType, pair.Value.ToString(), StringClaimValueType, issuer, issuer);
-                list.Add(claim);
+                else
+                {
+                    var claim = new Claim(claimType, pair.Value.ToString(), StringClaimValueType, issuer, issuer);
+                    list.Add(claim);
+                }
             }
 
             // set claim for user name
-            for (int i = 0; i < claimTypesForUserName.Length; i++)
+            Claim nameClaim = list.Find(c => claimTypesForUserName.Contains(c.Type));
+            if (nameClaim != null)
             {
-                if (list.Any(c => c.Type == claimTypesForUserName[i]))
-                {
-                    var nameClaim = new Claim(NameClaimType, list.First(c => c.Type == claimTypesForUserName[i]).Value, StringClaimValueType, issuer, issuer);
-                    list.Add(nameClaim);
-                    break;
-                }
+                var claim2 = new Claim(NameClaimType, nameClaim.Value, StringClaimValueType, issuer, issuer);
+                list.Add(claim2);
             }
 
             // dont include specific jwt claims
-            return list.Where(c => !claimsToExclude.Any(t => t == c.Type)).ToList();
+            return list.Where(c => !claimsToExclude.Contains(c.Type)).ToList();
         }
 
         private static ClaimsIdentity ClaimsIdentityFromJwt(IDictionary<string, object> jwtData, string issuer)
