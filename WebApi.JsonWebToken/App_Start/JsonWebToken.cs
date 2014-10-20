@@ -85,8 +85,7 @@ namespace WebApi.JsonWebToken
             Claim nameClaim = list.Find(c => claimTypesForUserName.Contains(c.Type));
             if (nameClaim != null)
             {
-                var claim2 = new Claim(NameClaimType, nameClaim.Value, StringClaimValueType, issuer, issuer);
-                list.Add(claim2);
+                list.Add(new Claim(NameClaimType, nameClaim.Value, StringClaimValueType, issuer, issuer));
             }
             
             return list;
@@ -108,14 +107,12 @@ namespace WebApi.JsonWebToken
                             "Jwt10401: Only a single 'Actor' is supported. Found second claim of type: '{0}', value: '{1}'", new object[] { "actor", claim.Value }));
                     }
 
-                    var claim2 = new Claim(type, claim.Value, claim.ValueType, issuer, issuer, subject);
-                    subject.AddClaim(claim2);
+                    subject.AddClaim(new Claim(type, claim.Value, claim.ValueType, issuer, issuer, subject));
 
                     continue;
                 }
 
-                var claim3 = new Claim(type, claim.Value, claim.ValueType, issuer, issuer, subject);
-                subject.AddClaim(claim3);
+                subject.AddClaim(new Claim(type, claim.Value, claim.ValueType, issuer, issuer, subject));
             }
 
             return subject;
