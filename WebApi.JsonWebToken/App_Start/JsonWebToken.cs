@@ -5,7 +5,7 @@ namespace WebApi.JsonWebToken
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Claims;
-    using System.Web.Script.Serialization;
+    using Newtonsoft.Json.Linq;
 
     public static class JsonWebToken
     {
@@ -19,12 +19,10 @@ namespace WebApi.JsonWebToken
         private static string[] claimTypesForUserName = new string[] { "name", "email", "user_id", "sub" };
         private static string[] claimsToExclude = new string[] { "iss", "sub", "aud", "exp", "iat", "identities" };
 
-        private static JavaScriptSerializer jsonSerializer = new JavaScriptSerializer();
-
         public static ClaimsPrincipal ValidateToken(string token, string secretKey, string audience = null, bool checkExpiration = false, string issuer = null)
         {
             var payloadJson = JWT.JsonWebToken.Decode(token, Convert.FromBase64String(secretKey), verify: true);
-            var payloadData = jsonSerializer.Deserialize<Dictionary<string, object>>(payloadJson);
+            var payloadData = JObject.Parse(payloadJson).ToObject<Dictionary<string, object>>();
 
             // audience check
             object aud;
