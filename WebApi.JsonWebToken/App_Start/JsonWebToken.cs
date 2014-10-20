@@ -73,25 +73,13 @@ namespace WebApi.JsonWebToken
 
         private static ICollection<Claim> ClaimsFromJwt(IDictionary<string, object> jwtData, string issuer)
         {
-            var list = new List<Claim>();
             issuer = issuer ?? DefaultIssuer;
 
-            foreach (KeyValuePair<string, object> pair in jwtData)
-            {
-                var claimType = pair.Key;
-                var source = pair.Value as ArrayList;
-
-                if (source != null)
-                {
-                    var claims = source.Cast<object>().Select(item => new Claim(pair.Key, item.ToString(), StringClaimValueType, issuer, issuer));
-                    list.AddRange(claims);
-                }
-                else
-                {
-                    var claim = new Claim(claimType, pair.Value.ToString(), StringClaimValueType, issuer, issuer);
-                    list.Add(claim);
-                }
-            }
+            var list = jwtData.Where(p => !claimsToExclude.Contains(p.Key)) // don't include specific claims
+                              .Select(p => new { Key = p.Key, Values = p.Value as ArrayList ?? new ArrayList { p.Value } }) // p.Value is either claim value of ArrayList of values
+                              .SelectMany(p => p.Values.Cast<object>()
+                                                .Select(v => new Claim(p.Key, v.ToString(), StringClaimValueType, issuer, issuer)))
+                              .ToList();
 
             // set claim for user name
             Claim nameClaim = list.Find(c => claimTypesForUserName.Contains(c.Type));
@@ -100,9 +88,8 @@ namespace WebApi.JsonWebToken
                 var claim2 = new Claim(NameClaimType, nameClaim.Value, StringClaimValueType, issuer, issuer);
                 list.Add(claim2);
             }
-
-            // dont include specific jwt claims
-            return list.Where(c => !claimsToExclude.Contains(c.Type)).ToList();
+            
+            return list;
         }
 
         private static ClaimsIdentity ClaimsIdentityFromJwt(IDictionary<string, object> jwtData, string issuer)
