@@ -82,12 +82,13 @@ namespace WebApi.JsonWebToken
                               .ToList();
 
             // set claim for user name
-            Claim nameClaim = list.Find(c => claimTypesForUserName.Contains(c.Type));
-            if (nameClaim != null)
+            // use original jwtData because claimsToExclude filter has sub and otherwise it wouldn't be used
+            var userNameClaimType = claimTypesForUserName.FirstOrDefault(ct => jwtData.ContainsKey(ct));
+            if (userNameClaimType != null)
             {
-                list.Add(new Claim(NameClaimType, nameClaim.Value, StringClaimValueType, issuer, issuer));
+                list.Add(new Claim(NameClaimType, jwtData[userNameClaimType].ToString(), StringClaimValueType, issuer, issuer));
             }
-            
+
             return list;
         }
 
