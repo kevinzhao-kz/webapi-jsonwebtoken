@@ -16,8 +16,8 @@ namespace WebApi.JsonWebToken
         private const string StringClaimValueType = "http://www.w3.org/2001/XMLSchema#string";
 
         // sort claim types by relevance
-        private static ISet<string> claimTypesForUserName = new HashSet<string>(new[] { "name", "email", "user_id", "sub" });
-        private static ISet<string> claimsToExclude = new HashSet<string>(new[] { "iss", "sub", "aud", "exp", "iat", "identities" });
+        private static ICollection<string> claimTypesForUserName = new[] { "name", "email", "user_id", "sub" };
+        private static ICollection<string> claimsToExclude = new[] { "iss", "sub", "aud", "exp", "iat", "identities" };
 
         private static DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
