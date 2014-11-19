@@ -74,7 +74,7 @@ namespace WebApi.JsonWebToken
             issuer = issuer ?? DefaultIssuer;
 
             var list = jwtData.Where(p => !claimsToExclude.Contains(p.Key)) // don't include specific claims
-                              .Select(p => new { Key = p.Key, Values = p.Value as ArrayList ?? new ArrayList { p.Value } }) // p.Value is either claim value of ArrayList of values
+                              .Select(p => new { Key = p.Key, Values = p.Value as JArray ?? new JArray { p.Value } }) // p.Value is either claim value of ArrayList of values
                               .SelectMany(p => p.Values.Cast<object>()
                                                 .Select(v => new Claim(p.Key, v.ToString(), StringClaimValueType, issuer, issuer)))
                               .ToList();
@@ -86,6 +86,14 @@ namespace WebApi.JsonWebToken
             {
                 list.Add(new Claim(NameClaimType, jwtData[userNameClaimType].ToString(), StringClaimValueType, issuer, issuer));
             }
+
+            // set claims for roles array
+            list.Where(c => c.Type == "roles").ToList().ForEach(r =>
+            {
+                list.Add(new Claim(RoleClaimType, r.Value, StringClaimValueType, issuer, issuer));
+            });
+
+            list.RemoveAll(c => c.Type == "roles");
 
             return list;
         }
