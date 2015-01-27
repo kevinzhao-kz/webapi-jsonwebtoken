@@ -1,4 +1,4 @@
-JsonWebToken DelegatingHandler for ASP.NET WebAPI.
+# JsonWebToken DelegatingHandler for ASP.NET WebAPI.
 
 ## Installation
 
